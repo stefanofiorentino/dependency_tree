@@ -1,6 +1,7 @@
 #include <iostream>
 #include <jsoncpp/json/json.h>
 #include <sstream>
+#include <list>
 
 std::string json_schema = R"(
 {
@@ -28,8 +29,16 @@ std::string json_schema = R"(
         "dimensions": {
             "type": "object",
             "properties": {
-                "length": {
-                    "type": "number"
+                "pos": {
+                    "type": "object",
+                    "properties": {
+                        "x": {
+                            "type": "number"
+                        },
+                        "y": {
+                            "type": "number"
+                        }
+                    }
                 },
                 "width": {
                     "type": "number"
@@ -37,11 +46,9 @@ std::string json_schema = R"(
                 "height": {
                     "type": "number"
                 }
-            },
-            "required": ["length", "width", "height"]
+            }
         }
-    },
-    "required": ["productId", "productName"]
+    }
 }
 )";
 
@@ -64,12 +71,12 @@ struct object
     std::string property;
     std::vector<object> members;
 
-    void print(std::string const& prefix = "") const
+    void print(std::string const &prefix = "") const
     {
         std::cout << prefix << property << std::endl;
         for (auto const &m: members)
         {
-            m.print(prefix+"\t");
+            m.print(prefix + "\t");
         }
     }
 };
@@ -93,6 +100,21 @@ std::vector<object> getObject(Json::Value const &json_value_schema)
     return object_vec;
 }
 
+void printLeafs(object const &o)
+{
+    if (o.members.empty())
+    {
+        std::cout << o.property << std::endl;
+    }
+    else
+    {
+        for (auto const &m : o.members)
+        {
+            printLeafs(m);
+        }
+    }
+}
+
 int main()
 {
     auto json_value_schema = getJsonValueFromString(json_schema);
@@ -100,6 +122,11 @@ int main()
     for (auto const &o : object_vec)
     {
         o.print();
+    }
+    std::cout << "Leafs:" << std::endl;
+    for (auto const &o : object_vec)
+    {
+        printLeafs(o);
     }
     return 0;
 }
