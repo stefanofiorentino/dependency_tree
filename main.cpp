@@ -73,10 +73,18 @@ struct object
 
     void print(std::string const &prefix = "") const
     {
-        std::cout << prefix << property << std::endl;
+        std::cout << prefix << property;
+        if (members.empty())
+        {
+            std::cout << " --x" << std::endl;
+        }
+        else
+        {
+            std::cout << std::endl;
+        }
         for (auto const &m: members)
         {
-            m.print(prefix + "\t");
+            m.print(prefix + property + " --> ");
         }
     }
 };
@@ -100,33 +108,13 @@ std::vector<object> getObject(Json::Value const &json_value_schema)
     return object_vec;
 }
 
-void printLeafs(object const &o)
-{
-    if (o.members.empty())
-    {
-        std::cout << o.property << std::endl;
-    }
-    else
-    {
-        for (auto const &m : o.members)
-        {
-            printLeafs(m);
-        }
-    }
-}
-
 int main()
 {
     auto json_value_schema = getJsonValueFromString(json_schema);
     auto object_vec = getObject(json_value_schema);
     for (auto const &o : object_vec)
     {
-        o.print();
-    }
-    std::cout << "Leafs:" << std::endl;
-    for (auto const &o : object_vec)
-    {
-        printLeafs(o);
+        o.print("product --> ");
     }
     return 0;
 }
